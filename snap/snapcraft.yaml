@@ -14,6 +14,19 @@ confinement: devmode # use 'strict' once you have the right plugs and slots
 apps:
   mpg123:
     command: usr/bin/mpg123.bin
+    environment:
+      MPG123_MODDIR: $SNAP/usr/lib/aarch64-linux-gnu/mpg123
+  pacmd:
+    command: usr/bin/pacmd
+  pulseaudio:
+    command: usr/bin/pulseaudio
+  aplay:
+    command: usr/bin/aplay
+  speaker-test:
+    command: usr/bin/speaker-test
+  #jackd-daemon:
+  #  command: usr/bin/jackd -R -dalsa
+  #  daemon: simple
 
 parts:
   player:
@@ -30,3 +43,22 @@ parts:
       #- libportaudio2
       #- libpulse0
       - mpg123
+  alsa:
+    plugin: nil
+    stage-packages:
+      - alsa-base
+      - alsa-utils
+  pulseaudio:
+    plugin: nil
+    stage-packages:
+      - pulseaudio
+  #jackd:
+  #  plugin: nil
+  #  stage-packages:
+  #    - jackd
+
+layout:
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+  /usr/lib/aarch64-linux-gnu/pulseaudio:
+    bind: $SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
