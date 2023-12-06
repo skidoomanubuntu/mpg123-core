@@ -8,22 +8,31 @@ description: |
   we live in tweetspace and your description wants to look good in the snap
   store.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+
+plugs:
+  home:
+    read: all
 
 apps:
   mpg123:
     command: usr/bin/mpg123.bin
     environment:
       MPG123_MODDIR: $SNAP/usr/lib/aarch64-linux-gnu/mpg123
+    plugs: [alsa, home]
   pacmd:
     command: usr/bin/pacmd
+    plugs: [alsa, home]
   pulseaudio:
     command: usr/bin/pulseaudio
+    plugs: [alsa, home]
   aplay:
     command: usr/bin/aplay
+    plugs: [alsa, home]
   speaker-test:
     command: usr/bin/speaker-test
+    plugs: [alsa, home]
   #jackd-daemon:
   #  command: usr/bin/jackd -R -dalsa
   #  daemon: simple
@@ -48,6 +57,9 @@ parts:
     stage-packages:
       - alsa-base
       - alsa-utils
+      - libasound2
+      - libasound2-data
+      - libasound2-plugins
   pulseaudio:
     plugin: nil
     stage-packages:
@@ -56,9 +68,16 @@ parts:
   #  plugin: nil
   #  stage-packages:
   #    - jackd
+  etcfile:
+    plugin: dump
+    source: etcfile
 
 layout:
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa
+  #/usr/share/alsa:
+  #  symlink: $SNAP/usr/share/alsa
   /usr/lib/aarch64-linux-gnu/pulseaudio:
     bind: $SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
+  /etc/asound.conf:
+    symlink: $SNAP/etc/asound.conf
