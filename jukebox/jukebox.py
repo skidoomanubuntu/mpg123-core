@@ -52,6 +52,11 @@ def handle_get():
     else:
         msg += 'Only GET accepted here\n'
     msg += 'Jukebox is done'
+
+    outputFile = open('/var/snap/mpg123-core/current/log', 'w')
+    outputFile.write(msg)
+    outputFile.close()
+
     return msg
 
 

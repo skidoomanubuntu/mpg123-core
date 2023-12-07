@@ -35,7 +35,7 @@ description: |
   http://<computer name, url or ip>:5000/jukebox?command=start
 
   IF you have mp3 files in /var/snap/mpg123-core/current/, then Jukebox will select one of them and play it on the output
-  outlet of your choice (see next section).
+  outlet of your choice.
 
   Typing this url will stop the music:
 
@@ -85,59 +85,27 @@ description: |
   null
       Discard all samples (playback) or generate zero samples (capture)
   default
-  sysdefault:CARD=b1
-      bcm2835 HDMI 1, bcm2835 HDMI 1
-      Default Audio Device
-  dmix:CARD=b1,DEV=0
-      bcm2835 HDMI 1, bcm2835 HDMI 1
-      Direct sample mixing device
-  dsnoop:CARD=b1,DEV=0
-      bcm2835 HDMI 1, bcm2835 HDMI 1
-      Direct sample snooping device
   hw:CARD=b1,DEV=0
       bcm2835 HDMI 1, bcm2835 HDMI 1
       Direct hardware device without any conversions
-  plughw:CARD=b1,DEV=0
-      bcm2835 HDMI 1, bcm2835 HDMI 1
-      Hardware device with all software conversions
-  sysdefault:CARD=Headphones
-      bcm2835 Headphones, bcm2835 Headphones
-      Default Audio Device
-  dmix:CARD=Headphones,DEV=0
-      bcm2835 Headphones, bcm2835 Headphones
-      Direct sample mixing device
-  dsnoop:CARD=Headphones,DEV=0
-      bcm2835 Headphones, bcm2835 Headphones
-      Direct sample snooping device
   hw:CARD=Headphones,DEV=0
       bcm2835 Headphones, bcm2835 Headphones
       Direct hardware device without any conversions
-  plughw:CARD=Headphones,DEV=0
-      bcm2835 Headphones, bcm2835 Headphones
-      Hardware device with all software conversions
 
   As you can see, hw:Headphones maps to hw:CARD=Headphones. If I wanted to use HDMI instead, I would ASSUME
   hw:b1 would work - but since my lab's monitor has no sound, I cannot test it.
-
-  I would expect people that know more about ALSA and Linux audio in general than I do to know what to write in there.
 
   UBUNTU NOT CORE (or another Linux etc)
 
   I worked on this snap for Ubuntu Core only. If you do not know what Ubuntu Core is, it is our version of Embedded Linux.
   Obviously, installing on Ubuntu Core supposes that there is a sound card on your board and it is working at a kernel
-  level. If you need help with this, contact us - this is what my team does. It is a commercial service, however there is also
-  a few widely available systems like RaspPI and x86 of different flavors that already have images with the proper support,
-  in case you want to give it a go and toy with the technology first.
-
-  Does it work on Ubuntu Classic? Maybe. Probably. I ran out of time for testing this, and I am still not a full-fledged
-  plumber, so better be chased about it.
-
-  Does it work on other systems where snaps can be deployed? I don't know, hopefully it does.
+  level. 
 
   ***********
 
   That is all I can think about. Hopefully it helps someone else in the community. Happy Ubuntu-ing!
 
+  Skidooman, VP Field Engineering IoT, Canonical (but this snap is NOT supported by Canonical...)
 
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
