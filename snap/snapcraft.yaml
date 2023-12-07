@@ -26,9 +26,118 @@ description: |
   sudo snap connect mpg123-core:alsa 
   And the same thing for home
 
-  OUTPUT SELECTION
+  JUKEBOX
 
-  Not done yet.
+  The Jukebox capability is enabling mpg123-core to be able to launch music "at a distance". For example, say that you
+  have a Ubuntu Core on a RaspPI running mpg123-core snap. In order to "launch" Jukebox, write the following into 
+  the browser of your choice:
+
+  http://<computer name, url or ip>:5000/jukebox?command=start
+
+  IF you have mp3 files in /var/snap/mpg123-core/current/, then Jukebox will select one of them and play it on the output
+  outlet of your choice (see next section).
+
+  Typing this url will stop the music:
+
+  http://<computer name, url or ip>:5000/jukebox?command=stop
+
+  There is no option for multiple tunes, specific tunes, etc. Eventually maybe I can implement it, or an eventual collaborator
+  can do it. 
+
+  USAGE AND OUTPUT SELECTION
+
+  - For the speaker-test and aplay tools
+
+  I worked a lot on this. First try this:
+  
+  sudo mpg123-core.speaker-test -Dhw:Headphones
+
+  (For where that -D flags comes from, keep on reading - it MAY be different for you!)
+
+  Then, you can try to play something from aplay as well (it only takes WAV files, and then there are sometimes limitations
+  on the type of WAV files it can play - sampling, etc - so beware)
+
+  sudo mpg123-core.aplay -Dhw:Headphones <file.wav>
+
+  - For mpg123 proper
+
+  The command line looks different. Don't use -D, use -o
+
+  sudo mpg123-core.mpg123 -o alsa:hw:Headphones <file.mp3>
+
+  At this point, I only used ALSA, and it works.
+
+  - For Jukebox
+
+  By default, the flag being passed to ALSA is hw:Headphones, which is valid on my system.
+  If you need to change, you need to write a valid json file named /var/snap/mpg123-core/current/output.json
+
+  For example:
+
+  {"output":"hw:Headphones"}
+
+  - How to determine the string that fits your system
+
+  Now, if you do not know how to get that string ('hw:Headphones'), 
+  I struggled with this also, so here is the procedure I figured out
+
+  skidooman@ubuntu:~$ sudo mpg123-core.aplay -L
+  null
+      Discard all samples (playback) or generate zero samples (capture)
+  default
+  sysdefault:CARD=b1
+      bcm2835 HDMI 1, bcm2835 HDMI 1
+      Default Audio Device
+  dmix:CARD=b1,DEV=0
+      bcm2835 HDMI 1, bcm2835 HDMI 1
+      Direct sample mixing device
+  dsnoop:CARD=b1,DEV=0
+      bcm2835 HDMI 1, bcm2835 HDMI 1
+      Direct sample snooping device
+  hw:CARD=b1,DEV=0
+      bcm2835 HDMI 1, bcm2835 HDMI 1
+      Direct hardware device without any conversions
+  plughw:CARD=b1,DEV=0
+      bcm2835 HDMI 1, bcm2835 HDMI 1
+      Hardware device with all software conversions
+  sysdefault:CARD=Headphones
+      bcm2835 Headphones, bcm2835 Headphones
+      Default Audio Device
+  dmix:CARD=Headphones,DEV=0
+      bcm2835 Headphones, bcm2835 Headphones
+      Direct sample mixing device
+  dsnoop:CARD=Headphones,DEV=0
+      bcm2835 Headphones, bcm2835 Headphones
+      Direct sample snooping device
+  hw:CARD=Headphones,DEV=0
+      bcm2835 Headphones, bcm2835 Headphones
+      Direct hardware device without any conversions
+  plughw:CARD=Headphones,DEV=0
+      bcm2835 Headphones, bcm2835 Headphones
+      Hardware device with all software conversions
+
+  As you can see, hw:Headphones maps to hw:CARD=Headphones. If I wanted to use HDMI instead, I would ASSUME
+  hw:b1 would work - but since my lab's monitor has no sound, I cannot test it.
+
+  I would expect people that know more about ALSA and Linux audio in general than I do to know what to write in there.
+
+  UBUNTU NOT CORE (or another Linux etc)
+
+  I worked on this snap for Ubuntu Core only. If you do not know what Ubuntu Core is, it is our version of Embedded Linux.
+  Obviously, installing on Ubuntu Core supposes that there is a sound card on your board and it is working at a kernel
+  level. If you need help with this, contact us - this is what my team does. It is a commercial service, however there is also
+  a few widely available systems like RaspPI and x86 of different flavors that already have images with the proper support,
+  in case you want to give it a go and toy with the technology first.
+
+  Does it work on Ubuntu Classic? Maybe. Probably. I ran out of time for testing this, and I am still not a full-fledged
+  plumber, so better be chased about it.
+
+  Does it work on other systems where snaps can be deployed? I don't know, hopefully it does.
+
+  ***********
+
+  That is all I can think about. Hopefully it helps someone else in the community. Happy Ubuntu-ing!
+
 
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
@@ -42,12 +151,6 @@ apps:
     command: usr/bin/mpg123.bin
     environment:
       MPG123_MODDIR: $SNAP/usr/lib/aarch64-linux-gnu/mpg123
-    plugs: [alsa, home]
-  pacmd:
-    command: usr/bin/pacmd
-    plugs: [alsa, home]
-  pulseaudio:
-    command: usr/bin/pulseaudio
     plugs: [alsa, home]
   aplay:
     command: usr/bin/aplay
@@ -63,24 +166,11 @@ apps:
     environment: 
       PYTHONPATH: $SNAP/lib/python3.8/site-packages
       MPG123_MODDIR: $SNAP/usr/lib/aarch64-linux-gnu/mpg123
-  #jackd-daemon:
-  #  command: usr/bin/jackd -R -dalsa
-  #  daemon: simple
 
 parts:
-  player:
-    # See 'snapcraft plugins'
+  mpg123:
     plugin: nil
     stage-packages:
-      #- libasound2
-      #- libaudio2
-      #- libc6
-      #- libjack-jackd2-0
-      #- libmpg123-0
-      #- libopenal1
-      #- libout123-0
-      #- libportaudio2
-      #- libpulse0
       - mpg123
   alsa:
     plugin: nil
@@ -90,10 +180,6 @@ parts:
       - libasound2
       - libasound2-data
       - libasound2-plugins
-  pulseaudio:
-    plugin: nil
-    stage-packages:
-      - pulseaudio
   jukebox:
     plugin: python
     source: ./jukebox
@@ -101,20 +187,9 @@ parts:
     override-prime: |
       craftctl default
       cp "${CRAFT_PART_SRC}/jukebox.py" "${CRAFT_PRIME}/bin/jukebox.py"
-  #jackd:
-  #  plugin: nil
-  #  stage-packages:
-  #    - jackd
-  #etcfile:
-  #  plugin: dump
-  #  source: etcfile
 
 layout:
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa
-  #/usr/share/alsa:
-  #  symlink: $SNAP/usr/share/alsa
-  /usr/lib/aarch64-linux-gnu/pulseaudio:
-    bind: $SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
   /etc/asound.conf:
     symlink: $SNAP/etc/asound.conf
