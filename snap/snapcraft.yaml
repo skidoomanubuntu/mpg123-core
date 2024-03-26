@@ -16,7 +16,6 @@ description: |
   skidooman@ubuntu:~$ sudo snap connections mpg123-core
   Interface     Plug                      Slot           Notes
   alsa          mpg123-core:alsa          :alsa          manual
-  home          mpg123-core:home          :home          manual
   network       mpg123-core:network       :network       -
   network-bind  mpg123-core:network-bind  :network-bind  -
 
@@ -107,12 +106,11 @@ description: |
 
   Skidooman, VP Field Engineering IoT, Canonical (but this snap is NOT supported by Canonical...)
 
-grade: stable # must be 'stable' to release into candidate/stable channels
-confinement: strict # use 'strict' once you have the right plugs and slots
-
-plugs:
-  home:
-    read: all
+grade: stable 
+confinement: strict 
+architectures:
+  - amd64
+  - arm64
 
 apps:
   mpg123:
